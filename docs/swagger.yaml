@@ -1,0 +1,357 @@
+definitions:
+  models.Blog:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.UserSessionData:
+    properties:
+      _id:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  models.ValidationErrorResponse:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+      tag:
+        type: string
+      value: {}
+    type: object
+info:
+  contact: {}
+  description: This is a simple project to practice myself
+  title: Golang Blog CRUD
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: User Login
+      operationId: Login
+      parameters:
+      - description: email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: password
+        in: body
+        maxLength: 32
+        minLength: 6
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserSessionData'
+        "400":
+          description: some condition failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Login
+      tags:
+      - auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: User Logout
+      operationId: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserSessionData'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Logout
+      tags:
+      - auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registration
+      operationId: Register
+      parameters:
+      - description: email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: password
+        in: body
+        maxLength: 32
+        minLength: 5
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserSessionData'
+        "400":
+          description: some condition failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Register
+      tags:
+      - auth
+  /api/blogs:
+    get:
+      consumes:
+      - application/json
+      description: Get all blogs (number of blogs per query is 10)
+      operationId: GetBlogs
+      parameters:
+      - default: 0
+        description: blog offset
+        in: query
+        maximum: 0
+        name: from
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Blog'
+            type: array
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get blogs
+      tags:
+      - blogs
+    post:
+      consumes:
+      - application/json
+      description: Create new blog
+      operationId: CreateBlog
+      parameters:
+      - description: blog's title
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: blog's content
+        in: body
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create blog
+      tags:
+      - blogs
+  /api/blogs/:id:
+    delete:
+      consumes:
+      - application/json
+      description: Delete new blog
+      operationId: DeleteBlog
+      parameters:
+      - description: blog's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: blog not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Delete blog
+      tags:
+      - blogs
+    get:
+      consumes:
+      - application/json
+      description: Get blog by ID
+      operationId: GetByID
+      parameters:
+      - description: blog's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Blog'
+        "404":
+          description: blog not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get blog by ID
+      tags:
+      - blogs
+    put:
+      consumes:
+      - application/json
+      description: Update new blog
+      operationId: UpdateBlog
+      parameters:
+      - description: blog's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: blog's title
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: blog's content
+        in: body
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: blog not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: validation failed
+          schema:
+            items:
+              $ref: '#/definitions/models.ValidationErrorResponse'
+            type: array
+        "500":
+          description: something went wrong
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Update blog
+      tags:
+      - blogs
+swagger: "2.0"

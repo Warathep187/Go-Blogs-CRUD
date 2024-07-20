@@ -1,0 +1,46 @@
+version: '3.2'
+services:
+  app:
+    build:
+      ssh:
+        - default=$HOME/.ssh/id_rsa
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - .:/app
+      - ~/go/pkg/mod:/go/pkg/mod
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:7.0
+    ports:
+      - 27017:27017
+    volumes:
+      - go-blogs-mongo:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=homestead
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+
+  redis:
+    image: redis:7.2.5
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - go-blogs-redis:/data
+    ports:
+      - 6379:6379
+
+volumes:
+  go-blogs-redis:
+    external: false
+  go-blogs-mongo:
+    external: false
+
+networks:
+  default:
+    name: go-blogs-network
+    external: true
